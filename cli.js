@@ -3,17 +3,13 @@ import { fetchAvatars, fetchShowAvatarIds } from "./lib/api.js";
 import { client } from "./lib/client.js";
 import fs from "fs";
 
-const defaultUid = fs.existsSync("data/uid")
-  ? fs.readFileSync("data/uid").toString()
-  : undefined;
-
 const answer = await inquirer.prompt([
   {
     type: "list",
     name: "mode",
     message: "モードを選択",
     choices: [
-      { value: "profile", name: "カード作成；プロフィール" },
+      { value: "profile", name: "カード作成：プロフィール" },
       { value: "artis", name: "カード作成：聖遺物のみ" },
       { value: "dmg", name: "カード作成：ダメージのみ" },
       { value: "refresh", name: "ステータス更新" },
@@ -23,7 +19,11 @@ const answer = await inquirer.prompt([
   {
     name: "uid",
     message: "UIDを入力",
-    default: defaultUid,
+    default: () => {
+      if (fs.existsSync("data/uid")) {
+        return fs.readFileSync("data/uid").toString();
+      }
+    },
     validate: (input) => {
       if (!/[1-9][0-9]{8}/.test(input)) {
         return "UIDが不正です";
