@@ -56,9 +56,7 @@ const answer = await inquirer.prompt([
 await fs.promises.writeFile("data/uid", answer.uid);
 
 if (Array.isArray(answer.avatar)) {
-  for (const avatar of answer.avatar) {
-    await client({ ...answer, avatar });
-  }
+  await Promise.all(answer.avatar.map(avatar => client({ ...answer, avatar })));
 } else {
   await client(answer);
 
