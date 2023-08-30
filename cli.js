@@ -42,16 +42,24 @@ const answer = await inquirer.prompt([
         fetchAvatars(),
         fetchShowAvatarIds(uid),
       ]);
-      return avatarIds.map((id) => ({
-        name: avatars[id].name,
-        value: String(id),
-      }));
+      return [
+        { name: "すべて", value: avatarIds },
+        ...avatarIds.map((id) => ({
+          name: avatars[id].name,
+          value: String(id),
+        }))
+      ];
     },
   },
 ]);
 
 await fs.promises.writeFile("data/uid", answer.uid);
 
-await client(answer);
+if (Array.isArray(answer.avatar)) {
+  await Promise.all(answer.avatar.map(avatar => client({ ...answer, avatar })));
+} else {
+  await client(answer);
+
+}
 
 process.exit(0);
