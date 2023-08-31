@@ -47,7 +47,7 @@ const answer = await inquirer.prompt([
         ...avatarIds.map((id) => ({
           name: avatars[id].name,
           value: String(id),
-        }))
+        })),
       ];
     },
   },
@@ -56,10 +56,11 @@ const answer = await inquirer.prompt([
 await fs.promises.writeFile("data/uid", answer.uid);
 
 if (Array.isArray(answer.avatar)) {
-  await Promise.all(answer.avatar.map(avatar => client({ ...answer, avatar })));
+  await Promise.all(
+    answer.avatar.map((avatar) => client({ ...answer, avatar })),
+  );
 } else {
   await client(answer);
-
 }
 
 process.exit(0);
