@@ -1,7 +1,6 @@
-import inquirer from "inquirer";
-import { fetchAvatars, fetchShowAvatarIds } from "./lib/api.js";
-import { client } from "./lib/client.js";
 import fs from "fs";
+import inquirer from "inquirer";
+import { getPlayerAvatars, createImge } from "./lib/client.js";
 
 const answer = await inquirer.prompt([
   {
@@ -37,18 +36,9 @@ const answer = await inquirer.prompt([
     message: "キャラクターを選択",
     when: ({ mode }) => mode !== "refresh",
     choices: async ({ uid }) => {
-      console.log("キャラクター情報取得中...");
-      const [avatars, avatarIds] = await Promise.all([
-        fetchAvatars(),
-        fetchShowAvatarIds(uid),
-      ]);
-      return [
-        { name: "すべて", value: avatarIds },
-        ...avatarIds.map((id) => ({
-          name: avatars[id].name,
-          value: String(id),
-        })),
-      ];
+      const data = await getPlayerAvatars(uid);
+      const all = data.map(({ value }) => value);
+      return [{ value: all, name: "すべて" }, ...data];
     },
   },
 ]);
@@ -57,10 +47,10 @@ await fs.promises.writeFile("data/uid", answer.uid);
 
 if (Array.isArray(answer.avatar)) {
   await Promise.all(
-    answer.avatar.map((avatar) => client({ ...answer, avatar })),
+    answer.avatar.map((avatar) => createImge({ ...answer, avatar })),
   );
 } else {
-  await client(answer);
+  await createImge(answer);
 }
 
 process.exit(0);
